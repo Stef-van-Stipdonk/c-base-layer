@@ -4,6 +4,7 @@ Currently in the very early stages.
 Will be adding more over time.
 
 # TODO
+- Rewrite dynamic lists to just use structs
 - Add context cracking for architecture
 - Add lists(linked lists etc)
 - Add basic memory management(like arenas)

@@ -5,9 +5,9 @@
 #include<assert.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include<error.h>
 //////////////////
 // NOTE: Context Cracking
-
 
 #if defined(__clang__)
 # define COMPILER_CLANG 1
@@ -121,7 +121,7 @@ global U64 max_U64 = 0xffffffffffffffffllu;
 #define listPop(list) (assert(listUsed(list) > 0), (list)[--*((size_t *)(list) - 1)])
 #define listGet(list, idx) (assert((idx) < listUsed(list)), (list)[(idx)])
 
-#define listPush(list, value) do { \
+#define listAppend(list, value) do { \
     if(listUsed(list) + 1lu >= listCapacity(list)) { \
         size_t *data = ((size_t *)(list)-2); \
         size_t newCap = listCapacity(list) * 2 + 2 * sizeof(size_t); \
