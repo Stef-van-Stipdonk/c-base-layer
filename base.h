@@ -1,6 +1,10 @@
 #ifndef BASE_H
 #define BASE_H
 
+#include<stdint.h>
+#include<assert.h>
+#include<stdlib.h>
+#include<stdio.h>
 //////////////////
 // NOTE: Context Cracking
 
@@ -60,7 +64,6 @@
 //////////////////
 // NOTE: Basic types
 
-#include<stdint.h>
 typedef int8_t S8;
 typedef int16_t S16;
 typedef int32_t S32;
@@ -93,4 +96,45 @@ global U8 max_U8 = 0xff;
 global U16 max_U16 = 0xffff;
 global U32 max_U32 = 0xffffffff;
 global U64 max_U64 = 0xffffffffffffffffllu;
+
+
+//////////////////
+// NOTE: Dynamic array (list)
+
+// NOTE to future self: Should probably look into if this can be optimized
+// All this code was cobbled together from a stackoverflow answer and wikipedia about dynamic arrays
+// Should look into possible optimization options.
+
+#define LIST_INITIAL_CAPACITY 8
+#define List(type) type *
+
+// Data layout - [capacity][used][data]
+#define initList(list) do { \
+  size_t *data = malloc(2 * sizeof(size_t) + LIST_INITIAL_CAPACITY * sizeof(*(list))); \
+  data[0] = LIST_INITIAL_CAPACITY; \
+  data[1] = 0; \
+  (list) = (typeof(*(list)) *)&data[2]; \
+} while(0)
+
+#define freeList(list) free((size_t *)(list)-2);
+
+#define listPop(list) (assert(listUsed(list) > 0), (list)[--*((size_t *)(list) - 1)])
+#define listGet(list, idx) (assert((idx) < listUsed(list)), (list)[(idx)])
+
+#define listPush(list, value) do { \
+    if(listUsed(list) + 1lu >= listCapacity(list)) { \
+        size_t *data = ((size_t *)(list)-2); \
+        size_t newCap = listCapacity(list) * 2 + 2 * sizeof(size_t); \
+        data = realloc(data, newCap); \
+        (list) = (typeof(*(list)) *)&data[2]; \
+    } \
+    size_t *used = ((size_t *)(list) - 1); \
+    (list)[(*used)++] = (value); \
+} while(0)
+
+#define listCapacity(list) ((list) ? *(size_t *)(list - 2) : 01u)
+#define listUsed(list) ((list) ? *(size_t *)(list - 1) : 01u)
+
+#define listIsEmpty(list) (listUsed(list) == 0)
+
 #endif // BASE_H
