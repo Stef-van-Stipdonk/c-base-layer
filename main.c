@@ -14,8 +14,8 @@ int main(void) {
   List(int) nums = NULL;
   initList(nums);
 
-  listPush(nums, 1);
-  listPush(nums, 2);
+  listAppend(nums, 1);
+  // listAppend(nums, 2);
 
   printf("capacity: %lu, used: %lu\n", listCapacity(nums), listUsed(nums)); 
   return 0;

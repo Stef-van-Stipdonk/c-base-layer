@@ -122,7 +122,7 @@ global U64 max_U64 = 0xffffffffffffffffllu;
 #define listGet(list, idx) (assert((idx) < listUsed(list)), (list)[(idx)])
 
 #define listAppend(list, value) do { \
-    if(listUsed(list) + 1lu >= listCapacity(list)) { \
+    if(listUsed(list) + 1 >= listCapacity(list)) { \
         size_t *data = ((size_t *)(list)-2); \
         size_t newCap = listCapacity(list) * 2 + 2 * sizeof(size_t); \
         data = realloc(data, newCap); \
@@ -136,5 +136,80 @@ global U64 max_U64 = 0xffffffffffffffffllu;
 #define listUsed(list) ((list) ? *(size_t *)(list - 1) : 01u)
 
 #define listIsEmpty(list) (listUsed(list) == 0)
+
+
+//////////////////
+// NOTE: Arena allocator
+
+#define PAGE_SIZE 4095
+
+typedef struct arena {
+    U8 *region;
+    size_t size;
+    U64 current;
+    struct arena *next;    
+} arena_t;
+
+void arena_pop(arena_t *arena, size_t size);
+
+void arena_clear(arena_t * arena);
+
+static arena_t *_arena_create(size_t size) {
+    arena_t *arena = (arena_t *) calloc(1, sizeof(arena_t));
+
+    if(!arena) return NULL;
+
+    arena->region = (U8 *) calloc(size, sizeof(U8));
+    arena->size = size;
+
+    if(!arena->region) {
+        free(arena); 
+        return NULL;
+    }
+
+    return arena;
+}
+
+arena_t *arena_create() {
+    return _arena_create(PAGE_SIZE);
+}
+
+void *arena_push(arena_t * arena, U64 size) {
+    arena_t *last = arena;
+
+    do {
+        if((arena->size - arena->current) >= size) {
+            arena->current += size;
+            return arena->region + (arena->current - size);
+        }
+        last = arena;
+    } while((arena = arena->next) != NULL);
+
+    size_t asize = size > PAGE_SIZE ? size : PAGE_SIZE;
+
+    arena_t *next = _arena_create(asize);
+    last->next = next;
+    next->current += size;
+    return next->region;
+}
+
+void arena_release(arena_t * arena) {
+    arena_t *next, *last = arena;
+    do {
+        next = last->next;
+        free(last->region);
+        free(last);
+        last = next;
+    } while(next != NULL);
+}
+
+U64 arena_get_position(arena_t *arena) {
+    return arena->current;
+}
+
+void arena_set_pos_back(arena_t *arena, U64 position) {
+    arena->current = position;
+}
+
 
 #endif // BASE_H
