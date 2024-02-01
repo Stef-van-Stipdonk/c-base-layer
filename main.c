@@ -15,7 +15,7 @@ int main(void) {
   initList(nums);
 
   listAppend(nums, 1);
-  // listAppend(nums, 2);
+  listAppend(nums, 2);
 
   printf("capacity: %lu, used: %lu\n", listCapacity(nums), listUsed(nums)); 
   return 0;

@@ -133,7 +133,7 @@ global U64 max_U64 = 0xffffffffffffffffllu;
 } while(0)
 
 #define listCapacity(list) ((list) ? *(size_t *)(list - 2) : 01u)
-#define listUsed(list) ((list) ? *(size_t *)(list - 1) : 01u)
+#define listUsed(list) ((list) ? *(size_t *)((size_t *)(list) - 1) : 0u)
 
 #define listIsEmpty(list) (listUsed(list) == 0)
 
