@@ -52,4 +52,28 @@ const u64 max_u64 = (u64)0xffffffffffffffffULL;
 #define IS_MACOS 0
 #endif
 
+// NOTE: Error Handling
+#define SUCCESS 0
+#define FAILURE -1
+
+// NOTE: Utility macros
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define UNUSED(x) (void)(x)
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+// NOTE: Debugging Macros
+#include <stdio.h>
+#ifdef DEBUG
+#define DEBUG_PRINT(fmt, ...)                                                  \
+  do {                                                                         \
+    fprintf(stderr, "DEBUG: %s:%d:%s(): " fmt, __FILE__, __LINE__, __func__,   \
+            __VA_ARGS__);                                                      \
+  } while (0)
+#else
+#define DEBUG_PRINT(fmt, ...)                                                  \
+  do {                                                                         \
+  } while (0)
+#endif
+
 #endif // BASE_H
